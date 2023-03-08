@@ -12,15 +12,15 @@ import os
 import platform
 import Download as dw
 import converter as cv
+
 save_path = ''
 
 INITIAL = '/'
 CURRENT_WORKING_DIRECTORY = ''
 
-def update_CURRENT_WORKING_DIRECTORY():
-    global INITIAL , CURRENT_WORKING_DIRECTORY
 
-    path = os.getcwd()
+def update_current_working_directory():
+    global INITIAL, CURRENT_WORKING_DIRECTORY ,save_path
 
     if platform.system() == 'Windows':
         path = os.path.expanduser('~\Downloads')
@@ -29,17 +29,18 @@ def update_CURRENT_WORKING_DIRECTORY():
         path = os.path.expanduser('~/Downloads')
 
     try:
-        os.mkdir(path+INITIAL+'Youtube Video Downloads')
+        os.mkdir(path + INITIAL + 'Youtube Video Downloads')
     except:
-        print("----------------------")
+        print("")
 
     path = path + INITIAL + 'Youtube Video Downloads'
     save_path = CURRENT_WORKING_DIRECTORY = path
     return path
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        update_CURRENT_WORKING_DIRECTORY()
+        update_current_working_directory()
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(438, 260)
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -82,7 +83,7 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.save_To_Folder_Text_Label.setText(update_CURRENT_WORKING_DIRECTORY())
+        self.save_To_Folder_Text_Label.setText(update_current_working_directory())
 
         self.download_button.clicked.connect(self.download_video)
         self.save_folder_button.clicked.connect(self.choose_save_folder)
@@ -97,13 +98,12 @@ class Ui_MainWindow(object):
         self.convert_to_mp3_chekbox.setText(_translate("MainWindow", "Convert to Mp3"))
         self.download_playlist_chekbox.setText(_translate("MainWindow", "Download whole playlist"))
         self.label.setText(_translate("MainWindow", "TextLabel"))
-        self.save_To_Folder_Text_Label.setText(_translate("MainWindow", update_CURRENT_WORKING_DIRECTORY()))
+        self.save_To_Folder_Text_Label.setText(_translate("MainWindow", update_current_working_directory()))
         self.save_folder_button.setText(_translate("MainWindow", "Save folder"))
         self.download_button.setText(_translate("MainWindow", "Download"))
 
-    def download_video(self,MainWindow):
+    def download_video(self, MainWindow):
 
-        # cv.folder_to_mp3('C:\\Users\General Reynu\Downloads\Youtube Video Downloads')
         global CURRENT_WORKING_DIRECTORY
         link = self.lineEdit.text()
         dw.path = CURRENT_WORKING_DIRECTORY
@@ -111,32 +111,26 @@ class Ui_MainWindow(object):
         print(link)
 
         if self.download_playlist_chekbox.isChecked():
-            path_tofolder = dw.onClickdownloadPlaylistasVideoButton(link)
-            print(path_tofolder)
+            path_tofolder = dw.on_clickdownload_playlistas_video_button(link)
             if self.convert_to_mp3_chekbox.isChecked():
                 cv.folder_to_mp3(path_tofolder)
-            os.remove(path_tofolder+'/links.txt')
+            os.remove(path_tofolder + '/links.txt')
         else:
-            print(' save path ' +CURRENT_WORKING_DIRECTORY)
-            file_path = dw.downloadVideoFile(link,path=CURRENT_WORKING_DIRECTORY )
+            file_path = dw.download_video_file(link, path=CURRENT_WORKING_DIRECTORY)
             if self.convert_to_mp3_chekbox.isChecked():
                 cv.folder_to_mp3(CURRENT_WORKING_DIRECTORY)
         print('Actions complete.')
 
-
-
-
-    def choose_save_folder(self,MainWindow):
-        global save_path,CURRENT_WORKING_DIRECTORY
+    def choose_save_folder(self, MainWindow):
+        global save_path, CURRENT_WORKING_DIRECTORY
         CURRENT_WORKING_DIRECTORY = save_path = QtWidgets.QFileDialog.getExistingDirectory(None, 'Select Folder')
         self.save_To_Folder_Text_Label.setText(save_path)
         print(save_path)
 
-#pyuic5 -x -o main.py youtubedownloader.ui
 
 if __name__ == "__main__":
-
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()

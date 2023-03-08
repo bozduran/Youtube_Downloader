@@ -8,12 +8,12 @@ import requests
 import os
 
 downloaded_files = []
-#import shutlib
+# import shutlib
 path = ''
 INITIAL = '/'
 
 
-class bcolors:
+class Bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKCYAN = '\033[96m'
@@ -24,17 +24,20 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
 fuchsia = '\033[38;2;255;00;255m'  # color as hex #FF00FF
 reset_color = '\033[39m'
 
-def clear_ilegal_caracters(text):
+
+def clear_illegal_caracters(text):
     invalid = '<>:"/\|?*'
 
     for char in invalid:
         text = text.replace(char, '')
     return text
 
-def checkUrl(link):
+
+def check_url(link):
     print('Checking link.')
     try:
         yt = YouTube(link)
@@ -44,51 +47,46 @@ def checkUrl(link):
     else:
         return link
 
-def chekIfPlaylistIsPlaylist(playlist):
 
+def check_If_playlistIs_playlist(playlist):
     try:
         print(f'Downloading playlist: {playlist.title}')
         return True
     except:
-        downloadVideoFile(playlist,path = path)
+        download_video_file(playlist, path=path)
         return False
 
 
-def createFolder(path=''):
-    if os.path.exists(path):
+def create_folder(path_for_folder=''):
+    if os.path.exists(path_for_folder):
         return
     try:
-        os.mkdir(path, 0o777)
+        os.mkdir(path_for_folder, 0o777)
     except Exception:
         traceback.print_exc()
 
 
-def downloadVideoFile(link, numberOfVideo=1, outOf=1, path=path):
-
-
-    yt = YouTube(link)
-    print('Yt objcreated')
+def download_video_file(link, numberOfVideo=1, outOf=1, path=path):
+    yt = YouTube(link, on_progress_callback=on_progress)
     thumbnail_link = yt.thumbnail_url
-    print('thumbnail_link objcreated')
-    video_filename=  yt.title.replace('|','')
+    video_filename = yt.title.replace('|', '')
     img_data = requests.get(thumbnail_link).content
-    createFolder('Thumbnails')#'/Thumbnails/'+
+    create_folder('Thumbnails')
     filename = 'Thumbnails/' + video_filename + '.jpg'
 
-    print('1',filename)
     with open(filename, 'wb') as handler:
         handler.write(img_data)
 
-    print('2')
-    print(f' ' + bcolors.BOLD + 'Downloading: ', yt.title, '~ viewed', yt.views,
-          'times.',bcolors.ENDC)
-    filteredStream = yt.streams.filter(progressive=True).order_by('resolution').desc()
+    print(f' ' + Bcolors.BOLD + 'Downloading: ', yt.title, '~ viewed', yt.views,
+          'times.', Bcolors.ENDC)
+    filtered_stream = yt.streams.filter(progressive=True).order_by('resolution').desc()
 
-    filteredStream.get_highest_resolution().download(output_path=path)
-    #print(bcolors.OKGREEN +f'Download of video {yt.title} complete.'+bcolors.ENDC)
-    return path +INITIAL+video_filename + '.mp4'
+    filtered_stream.get_highest_resolution().download(output_path=path)
+    print(Bcolors.OKGREEN + f'Download of video {yt.title} complete.' + Bcolors.ENDC)
+    return path + INITIAL + video_filename + '.mp4'
 
-def downloadVideosOfPlaylist(playlist, alreadyDownloaded, fullPath, AUDIO=0):
+
+def download_videos_of_playlist(playlist, alreadyDownloaded, fullPath, AUDIO=0):
     i = 0
     for video in playlist:
         i += 1
@@ -97,62 +95,46 @@ def downloadVideosOfPlaylist(playlist, alreadyDownloaded, fullPath, AUDIO=0):
             try:
                 file = open((fullPath + INITIAL + "links.txt"), 'a+')
                 if (AUDIO == 1):
-                    downloadVideoFile(video, i, len(playlist.videos), fullPath)
+                    download_video_file(video, i, len(playlist.videos), fullPath)
                 else:
-                    downloadVideoFile(video, i, len(playlist.videos), fullPath)
+                    download_video_file(video, i, len(playlist.videos), fullPath)
                 text = str(video) + str('\n')
                 file.write(text)
                 file.close()
             except Exception:
                 traceback.print_exc()
 
-def onClickdownloadPlaylistasVideoButton(link):
 
-
+def on_clickdownload_playlistas_video_button(link):
     playlist = Playlist(link)
-    print('this')
-    if chekIfPlaylistIsPlaylist(playlist) == False:
+    if check_If_playlistIs_playlist(playlist) == False:
         return
     playlist._video_regex = re.compile(r"\"url\":\"(/watch\?v=[\w-]*)")  #
-    #channelName = playlist.owner  # Chanel owner
-    playlistName = playlist.title  # name of playlist
-    #fullPath = path + INITIAL + channelName
-    #createFolder(fullPath)
-    fullPath = path + INITIAL + playlistName.replace(':','')
-    print(fullPath)
-    createFolder(fullPath)
-    file = openFileName(fullPath)
-    alreadyDownloaded = readDownloadedName(file)
-    downloadVideosOfPlaylist(playlist, alreadyDownloaded, fullPath, AUDIO=0)
-    return fullPath
+    playlist_name = playlist.title
+    full_path = path + INITIAL + playlist_name.replace(':', '')
+    print(full_path)
+    create_folder(full_path)
+    file = open_file_name(full_path)
+    already_downloaded = read_downloaded_name(file)
+    download_videos_of_playlist(playlist, already_downloaded, full_path, AUDIO=0)
+    return full_path
 
 
-def download(link,download_whole_playlist ):
-    checkUrl(link)
+def download(link, download_whole_playlist):
+    check_url(link)
 
 
-
-
-
-
-
-
-
-
-def readDownloadedName(file):
-    #print(f'Reading file ')
-    returnList = []
+def read_downloaded_name(file):
+    return_list = []
     for x in file:
-        returnList.append(x)
+        return_list.append(x)
 
-    return returnList
+    return return_list
 
 
-def openFileName(path):
-    #print(f'Opening file {path}')
+def open_file_name(path):
     try:
         file = open((path + INITIAL + "links.txt"), 'a+')
         return file
     except Exception:
         traceback.print_exc()
-
