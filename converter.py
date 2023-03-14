@@ -1,11 +1,16 @@
 import eyed3 as eyed3
 from eyed3.id3.frames import ImageFrame
 from moviepy.editor import *
+
+import mylogger
+
 INITIAL = '/'
 
 def add_thumbnail(name):
+    print(name)
     l = name.split(INITIAL)
     image_name = os.getcwd() + '/Thumbnails/' + l[-1].replace('.mp3','.jpg')
+    mylogger.logger.info(name,'\n',image_name)
     audiofile = eyed3.load(name)
     if (audiofile.tag == None):
         audiofile.initTag()

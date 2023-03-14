@@ -111,14 +111,14 @@ class Ui_MainWindow(object):
         print(link)
 
         if self.download_playlist_chekbox.isChecked():
-            path_tofolder = dw.on_clickdownload_playlistas_video_button(link)
             if self.convert_to_mp3_chekbox.isChecked():
-                cv.folder_to_mp3(path_tofolder)
-            os.remove(path_tofolder + '/links.txt')
+                path_to_folder = dw.on_click_download_playlist_as_video_button(link,1)
+            else:
+                path_to_folder = dw.on_click_download_playlist_as_video_button(link,0)
+            os.remove(path_to_folder + '/links.txt')
+            os.remove(INITIAL+'Thumbnails')
         else:
-            file_path = dw.download_video_file(link, path=CURRENT_WORKING_DIRECTORY)
-            if self.convert_to_mp3_chekbox.isChecked():
-                cv.folder_to_mp3(CURRENT_WORKING_DIRECTORY)
+            dw.download_video_as_mp3(link, path=CURRENT_WORKING_DIRECTORY)
         print('Actions complete.')
 
     def choose_save_folder(self, MainWindow):
