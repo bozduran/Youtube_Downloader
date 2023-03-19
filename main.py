@@ -10,6 +10,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import os
 import platform
+
+from pytube import YouTube, Playlist
+
 import Download as dw
 import converter as cv
 
@@ -102,6 +105,8 @@ class Ui_MainWindow(object):
         self.save_folder_button.setText(_translate("MainWindow", "Save folder"))
         self.download_button.setText(_translate("MainWindow", "Download"))
 
+    def set_label(self,string):
+        self.label.setText(string)
     def download_video(self, MainWindow):
 
         global CURRENT_WORKING_DIRECTORY
@@ -111,6 +116,9 @@ class Ui_MainWindow(object):
         print(link)
 
         if self.download_playlist_chekbox.isChecked():
+            self.set_label(
+                Playlist(link).title
+            )
             if self.convert_to_mp3_chekbox.isChecked():
                 path_to_folder = dw.on_click_download_playlist_as_video_button(link,1)
             else:
@@ -118,8 +126,12 @@ class Ui_MainWindow(object):
             os.remove(path_to_folder + '/links.txt')
             os.remove(INITIAL+'Thumbnails')
         else:
-            dw.download_video_as_mp3(link, path=CURRENT_WORKING_DIRECTORY)
-        print('Actions complete.')
+            self.set_label(
+                YouTube(link).title
+            )
+            dw.download_video_as_mp3(link, CURRENT_WORKING_DIRECTORY)
+
+        self.set_label(dw.Bcolors.OKGREEN +"Download Complete"+ dw.Bcolors.ENDC)
 
     def choose_save_folder(self, MainWindow):
         global save_path, CURRENT_WORKING_DIRECTORY

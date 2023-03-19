@@ -51,7 +51,7 @@ def check_url(link):
         return link
 
 
-def check_If_playlist_Is_playlist(playlist):
+def check_If_playlist_Is_playlist(playlist: object) -> object:
     try:
         print(f'Downloading playlist: {playlist.title}')
         return True
@@ -96,8 +96,9 @@ def download_video_file(link, numberOfVideo=1, outOf=1, path=path):
 
 def download_video_as_mp3(link,destionation_folder):
     yt = YouTube(link)
-
+    print(yt.title)
     file_name = file_name_formater(yt.title)
+
     download_thumbnail(yt)
 
     audio_streams = yt.streams.filter(only_audio=True)
