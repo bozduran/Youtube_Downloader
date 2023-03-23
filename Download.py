@@ -79,7 +79,7 @@ def download_thumbnail(youTube):
         handler.write(img_data)
 
 def file_name_formater(file_name):
-    return file_name.replace('|/', '')
+    return clear_illegal_caracters(file_name)
 def download_video_file(link, numberOfVideo=1, outOf=1, path=path):
 
     yt = YouTube(link, on_progress_callback=on_progress)
