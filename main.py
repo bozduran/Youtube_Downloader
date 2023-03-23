@@ -131,7 +131,7 @@ class Ui_MainWindow(object):
             )
             dw.download_video_as_mp3(link, CURRENT_WORKING_DIRECTORY)
 
-        self.set_label(dw.Bcolors.OKGREEN +"Download Complete"+ dw.Bcolors.ENDC)
+
 
     def choose_save_folder(self, MainWindow):
         global save_path, CURRENT_WORKING_DIRECTORY
