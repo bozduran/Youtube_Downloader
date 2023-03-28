@@ -1,11 +1,13 @@
 import re
 import traceback
 
+import pytube
 from pytube import YouTube, Playlist
 from pytube.cli import on_progress
 from pytube.exceptions import VideoUnavailable
 import requests
 import os
+from pydub import AudioSegment
 
 import mylogger
 import converter
@@ -33,7 +35,8 @@ reset_color = '\033[39m'
 
 
 def clear_illegal_caracters(text):
-    invalid = '<>:"/\|?*'
+    invalid = '/'
+              #'<>:"/\|?*'
 
     for char in invalid:
         text = text.replace(char, '')
@@ -45,7 +48,7 @@ def check_url(link):
     try:
         yt = YouTube(link)
     except VideoUnavailable:
-        mylogger.logger.critical(f'Video {link} is unavaialable, skipping.')
+        mylogger.logger.critical(f'Video {link} is unavailable, skipping.')
         exit(1)
     else:
         return link
@@ -69,8 +72,9 @@ def create_folder(path_for_folder=''):
         mylogger.logger('create_folder:', traceback.print_exc())
 
 def download_thumbnail(youTube):
+
     thumbnail_link = youTube.thumbnail_url
-    file_name = file_name_formater(youTube.title)
+    file_name = f'{clear_illegal_caracters(youTube.title)}'
     img_data = requests.get(thumbnail_link).content
     create_folder('Thumbnails')
     filename = 'Thumbnails/' + file_name + '.jpg'
@@ -79,34 +83,35 @@ def download_thumbnail(youTube):
         handler.write(img_data)
 
 def file_name_formater(file_name):
-    return file_name.replace('|/', '')
+    return clear_illegal_caracters(file_name)
+
 def download_video_file(link, numberOfVideo=1, outOf=1, path=path):
 
     yt = YouTube(link, on_progress_callback=on_progress)
     download_thumbnail(yt)
-    video_filename = file_name_formater(yt.title)
+    #video_filename = file_name_formater(yt.title)
 
-    print(f' ' + Bcolors.BOLD + 'Downloading: ', yt.title, '~ viewed', yt.views,
-          'times.', Bcolors.ENDC)
+    print(f' {Bcolors.BOLD}Downloading: {yt.title} viewed: {yt.views} times.{Bcolors.ENDC}')
+
     filtered_stream = yt.streams.filter(progressive=True).order_by('resolution').desc()
-
     filtered_stream.get_highest_resolution().download(output_path=path)
-    print(Bcolors.OKGREEN + f'Download of video {yt.title} complete.' + Bcolors.ENDC)
-    return path + INITIAL + video_filename + '.mp4'
+    print(f' {Bcolors.BOLD}Download of video {yt.title} complete.{Bcolors.ENDC}')
+    return f'{path}{INITIAL}{clear_illegal_caracters(yt.title)}.mp4'
 
-def download_video_as_mp3(link,destionation_folder):
-    yt = YouTube(link)
-    print(yt.title)
-    file_name = file_name_formater(yt.title)
+def download_video_as_mp3(url, destination_folder):
+    youtube = YouTube(url)
 
-    download_thumbnail(yt)
+    # Get the audio stream and download it
+    audio_stream = youtube.streams.filter(only_audio=True).first()
+    audio_stream.download(output_path=destination_folder)
 
-    audio_streams = yt.streams.filter(only_audio=True)
-    best_audio = audio_streams.order_by('abr').desc().first()
-    file_name_with_path = destionation_folder + INITIAL + file_name + '.mp3'
-    best_audio.download(filename=file_name_with_path)
+    downloaded_file_path = os.path.join(destination_folder, clear_illegal_caracters(audio_stream.default_filename) )
+    sound = AudioSegment.from_file(downloaded_file_path)
+    mp3_file_path = os.path.splitext(downloaded_file_path)[0] + '.mp3'
+    sound.export(mp3_file_path, format='mp3')
+    os.remove(downloaded_file_path)
 
-
+    print(f"Downloaded and converted {url} to {mp3_file_path}")
 
 def download_videos_of_playlist(playlist, already_downloaded, destination_path, AUDIO=0):
     i = 0
@@ -133,7 +138,7 @@ def on_click_download_playlist_as_video_button(link,audio):
         return
     playlist._video_regex = re.compile(r"\"url\":\"(/watch\?v=[\w-]*)")  #
     playlist_name = playlist.title
-    full_path = path + INITIAL + playlist_name.replace(':', '')
+    full_path = f'{path}{INITIAL}{clear_illegal_caracters(playlist_name)}'
     print('Download will be saved: ',full_path)
     create_folder(full_path)
     file = open_file_name(full_path)
@@ -141,10 +146,8 @@ def on_click_download_playlist_as_video_button(link,audio):
     download_videos_of_playlist(playlist, already_downloaded, full_path, audio)
     return full_path
 
-
 def download(link, download_whole_playlist):
     check_url(link)
-
 
 def read_downloaded_name(file):
     return_list = []
@@ -152,7 +155,6 @@ def read_downloaded_name(file):
         return_list.append(x)
 
     return return_list
-
 
 def open_file_name(path):
     try:
