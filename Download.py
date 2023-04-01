@@ -114,22 +114,20 @@ def download_video_as_mp3(url, destination_folder):
     print(f"Downloaded and converted {url} to {mp3_file_path}")
 
 def download_videos_of_playlist(playlist, already_downloaded, destination_path, AUDIO=0):
-    i = 0
-    for video in playlist:
-        i += 1
+    video_count = len(playlist)
+    for i, video in enumerate(playlist, start=1):
         if video not in already_downloaded:
-            print(f'Downloading {i} out of {len(playlist)}')
+            print(f'{Bcolors.OKBLUE}Downloading {i} out of {video_count}{Bcolors.ENDC}')
             try:
-                file = open((destination_path + INITIAL + "links.txt"), 'a+')
-                if (AUDIO == 1):
-                    download_video_as_mp3(video, destination_path) #download_video_file(video, i, len(playlist.videos), fullPath)
-                else:
-                    download_video_file(video, i, len(playlist.videos), destination_path)
-                text = str(video) + str('\n')
-                file.write(text)
-                file.close()
+                with open(destination_path + INITIAL + "links.txt", 'a+') as file:
+                    if AUDIO:
+                        download_video_as_mp3(video, destination_path)
+                    else:
+                        download_video_file(video, i, video_count, destination_path)
+                    file.write(f'{video}\n')
             except Exception:
                 mylogger.logger.critical("download_videos_of_playlist:", traceback.print_exc())
+
 
 
 def on_click_download_playlist_as_video_button(link,audio):

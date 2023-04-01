@@ -109,18 +109,17 @@ class Ui_MainWindow(object):
         print(link)
 
         if self.download_playlist_chekbox.isChecked():
-            self.set_label(
-                Playlist(link).title
-            )
-            if self.convert_to_mp3_chekbox.isChecked():
-                path_to_folder = dw.on_click_download_playlist_as_video_button(link,1)
-            else:
-                path_to_folder = dw.on_click_download_playlist_as_video_button(link,0)
+            self.set_label(Playlist(link).title)
+
+            path_to_folder = dw.on_click_download_playlist_as_video_button(link,
+                                                                           int(self.convert_to_mp3_chekbox.isChecked()))
+
             os.remove(path_to_folder + '/links.txt')
         else:
             print(CURRENT_WORKING_DIRECTORY)
             dw.download_video_as_mp3(link, CURRENT_WORKING_DIRECTORY)\
 
+        os.remove(path_to_folder + '/Thumbnails')
         print(f'{dw.Bcolors.OKGREEN}Complete{dw.Bcolors.ENDC}')
 
 
