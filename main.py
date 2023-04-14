@@ -117,9 +117,8 @@ class Ui_MainWindow(object):
             os.remove(path_to_folder + '/links.txt')
         else:
             print(CURRENT_WORKING_DIRECTORY)
-            dw.download_video_as_mp3(link, CURRENT_WORKING_DIRECTORY)\
+            dw.download_video_as_mp3(link, CURRENT_WORKING_DIRECTORY)
 
-        os.remove(path_to_folder + '/Thumbnails')
         print(f'{dw.Bcolors.OKGREEN}Complete{dw.Bcolors.ENDC}')
 
 

@@ -99,7 +99,7 @@ def download_video_file(link, numberOfVideo=1, outOf=1, path=path):
     return f'{path}{INITIAL}{clear_illegal_caracters(yt.title)}.mp4'
 
 def download_video_as_mp3(url, destination_folder):
-    youtube = YouTube(url)
+    youtube = YouTube(url,  on_progress_callback=on_progress)
 
     # Get the audio stream and download it
     audio_stream = youtube.streams.filter(only_audio=True).first()

@@ -1,0 +1,8 @@
+eyed3
+moviepy
+pydub
+pytube
+requests
+pydub
+PyQt5
+logging
