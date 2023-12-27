@@ -1,11 +1,10 @@
 
-from PyQt5 import QtCore, QtGui, QtWidgets
 import os
 import platform
 import sys
 
-
-from pytube import YouTube, Playlist
+from PyQt5 import QtCore, QtGui, QtWidgets
+from pytube import Playlist
 
 import Download as dw
 import converter as cv
@@ -19,7 +18,7 @@ def update_current_working_directory():
     global INITIAL, CURRENT_WORKING_DIRECTORY ,save_path
 
     if platform.system() == 'Windows':
-        path = os.path.expanduser('~\Downloads')
+        path = os.path.expanduser(r'~\Downloads')
         INITIAL = '\\'
     else:
         path = os.path.expanduser('~/Downloads')
@@ -31,6 +30,7 @@ def update_current_working_directory():
 
     path = path + INITIAL + 'Youtube Video Downloads'
     save_path = CURRENT_WORKING_DIRECTORY = path
+    print(save_path)
     return path
 
 
