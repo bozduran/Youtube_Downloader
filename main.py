@@ -1,13 +1,15 @@
-
+import threading
 import os
 import platform
 import sys
+import traceback
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from pytube import Playlist
 
 import Download as dw
 import converter as cv
+import mylogger
 
 save_path = ''
 INITIAL = '/'
@@ -24,13 +26,13 @@ def update_current_working_directory():
         path = os.path.expanduser('~/Downloads')
 
     try:
-        os.mkdir(path + INITIAL + 'Youtube Video Downloads')
+        dw.create_folder(path + INITIAL + 'Youtube Video Downloads')
     except:
-        print("")
+        mylogger.logger.warning("update_current_working_directory",traceback.format_exc())
 
     path = path + INITIAL + 'Youtube Video Downloads'
     save_path = CURRENT_WORKING_DIRECTORY = path
-    print(save_path)
+    mylogger.logger.info(save_path)
     return path
 
 
@@ -106,27 +108,26 @@ class Ui_MainWindow(object):
         link = self.lineEdit.text()
         dw.path = CURRENT_WORKING_DIRECTORY
         cv.INITIAL = dw.INITIAL = INITIAL
-        print(link)
+        mylogger.logger.info(link)
 
         if self.download_playlist_chekbox.isChecked():
             self.set_label(Playlist(link).title)
-
             path_to_folder = dw.on_click_download_playlist_as_video_button(link,
                                                                            int(self.convert_to_mp3_chekbox.isChecked()))
-
-            os.remove(path_to_folder + '/links.txt')
-        else:
-            print(CURRENT_WORKING_DIRECTORY)
+        elif self.convert_to_mp3_chekbox.isChecked():
+            mylogger.logger.info(CURRENT_WORKING_DIRECTORY)
             dw.download_video_as_mp3(link, CURRENT_WORKING_DIRECTORY)
-
-        print(f'{dw.Bcolors.OKGREEN}Complete{dw.Bcolors.ENDC}')
+        else:
+            dw.download_video_file(link,path=CURRENT_WORKING_DIRECTORY)
+        mylogger.logger.info(f'{dw.Bcolors.OKGREEN}Complete{dw.Bcolors.ENDC}')
 
 
     def choose_save_folder(self, MainWindow):
         global save_path, CURRENT_WORKING_DIRECTORY
         CURRENT_WORKING_DIRECTORY = save_path = QtWidgets.QFileDialog.getExistingDirectory(None, 'Select Folder')
         self.save_To_Folder_Text_Label.setText(save_path)
-        print(save_path)
+        mylogger.logger.info(save_path)
+
 
 
 if __name__ == "__main__":
